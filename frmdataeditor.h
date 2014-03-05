@@ -1,3 +1,23 @@
+/*
+    ODK Viewer - A tool to visualise and edit survey data collected in ODK
+    Copyright (C) 2014  International Livestock Research Institute
+    Author: Carlos Quiros (Research Methods Group)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #ifndef FRMDATAEDITOR_H
 #define FRMDATAEDITOR_H
 
@@ -8,6 +28,7 @@
 #include <QPointer>
 #include "odkformreader.h"
 
+
 #include "flickcharm.h"
 
 
@@ -15,7 +36,7 @@ namespace Ui {
 class frmDataEditor;
 }
 
-typedef QPointer<QAbstractItemDelegate> Tdelegate;
+
 
 class frmDataEditor : public QDialog
 {
@@ -24,7 +45,8 @@ class frmDataEditor : public QDialog
 public:
     explicit frmDataEditor(QWidget *parent = 0);
     ~frmDataEditor();
-    void setData(QString surveyID, QString surveyDesc, QString surveyTag, QString surveyVersion, QString surveyFile, QString dataDesc, QString dataFile);
+    void addData(QString dataFile, QString dataDesc);
+    void setSurveyInfo(QString surveyID, QString surveyDesc, QString surveyTag, QString surveyVersion, QString surveyFile);
     void setODKReader(odkFormReader reader);
 
 
@@ -48,6 +70,8 @@ private slots:
     void dataChanged(QModelIndex from, QModelIndex to);
 
 
+    void on_cmdhidesurvey_clicked();
+
 private:
     Ui::frmDataEditor *ui;
     QString m_surveyID;
@@ -59,6 +83,7 @@ private:
     QString m_dataDesc;
 
 
+
     odkFormReader ODKreader;
 
 
@@ -66,7 +91,7 @@ private:
     FlickCharm treeCharm;
 
     editorModel *m_editorModel;
-    QList< Tdelegate> delegates;
+
 };
 
 #endif // FRMDATAEDITOR_H

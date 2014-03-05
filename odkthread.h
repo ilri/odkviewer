@@ -18,49 +18,31 @@
 
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ODKTHREAD_H
+#define ODKTHREAD_H
 
-#include <QWidget>
-#include "formsmodel.h"
-#include <QModelIndex>
-#include <QMovie>
-#include "odkthread.h"
+#include <QThread>
+#include "odkformreader.h"
 
+// This class reads an ODK Survey in a separate execution thread so
+// the application does not hang while reading a survey.
 
-namespace Ui {
-class mainWindow;
-}
-
-class mainWindow : public QWidget
+class odkThread : public QThread
 {
     Q_OBJECT
-
 public:
-    explicit mainWindow(QWidget *parent = 0);
-    ~mainWindow();
-
-private slots:
-    void on_cmdclose_clicked();
-
-    void on_cmdsettings_clicked();
-
-    void formClicked(QModelIndex index);
-
-    void on_cmdabout_clicked();
-
-    void readerFinished();
-
-    void reStart();
+    explicit odkThread(QObject *parent = 0);
+    void run(); //The main thread process
+    void setReader(odkFormReader reader);
+    odkFormReader getReader();
+    void setSurveyData(QString surveyFile, QString mainModule);
 
 private:
-    Ui::mainWindow *ui;
-    void loadSettings();
-    QString dataDir;
-    QString formsDir;
-    formsModel *m_formModel;
-    QMovie *movie;
-    odkThread odkReader;
+    odkFormReader m_reader;
+    QString m_surveyFile;
+    QString m_mainModule;
+
+
 };
 
-#endif // MAINWINDOW_H
+#endif // ODKTHREAD_H

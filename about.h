@@ -18,49 +18,28 @@
 
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ABOUT_H
+#define ABOUT_H
 
-#include <QWidget>
-#include "formsmodel.h"
-#include <QModelIndex>
-#include <QMovie>
-#include "odkthread.h"
-
+#include <QDialog>
 
 namespace Ui {
-class mainWindow;
+class about;
 }
 
-class mainWindow : public QWidget
+class about : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit mainWindow(QWidget *parent = 0);
-    ~mainWindow();
+    explicit about(QWidget *parent = 0);
+    ~about();
 
 private slots:
     void on_cmdclose_clicked();
 
-    void on_cmdsettings_clicked();
-
-    void formClicked(QModelIndex index);
-
-    void on_cmdabout_clicked();
-
-    void readerFinished();
-
-    void reStart();
-
 private:
-    Ui::mainWindow *ui;
-    void loadSettings();
-    QString dataDir;
-    QString formsDir;
-    formsModel *m_formModel;
-    QMovie *movie;
-    odkThread odkReader;
+    Ui::about *ui;
 };
 
-#endif // MAINWINDOW_H
+#endif // ABOUT_H

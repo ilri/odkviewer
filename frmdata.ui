@@ -61,6 +61,19 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="lblmax">
+     <property name="font">
+      <font>
+       <family>Droid Sans</family>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ffaa00;&quot;&gt;Select a maximum of 3 datasets&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="Line" name="line_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -91,6 +104,19 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cmdload">
+       <property name="font">
+        <font>
+         <family>Droid Sans</family>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Load data</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="cmdback">

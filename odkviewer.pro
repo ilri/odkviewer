@@ -24,7 +24,9 @@ SOURCES += main.cpp\
     editormodel.cpp \
     chosevalue.cpp \
     lkptablemodel.cpp \
-    flickcharm.cpp
+    flickcharm.cpp \
+    about.cpp \
+    odkthread.cpp
 
 HEADERS  += mainwindow.h \
     frmsettings.h \
@@ -38,7 +40,9 @@ HEADERS  += mainwindow.h \
     editormodel.h \
     chosevalue.h \
     lkptablemodel.h \
-    flickcharm.h
+    flickcharm.h \
+    about.h \
+    odkthread.h
 
 FORMS    += \
     frmsettings.ui \
@@ -46,7 +50,8 @@ FORMS    += \
     choosedir.ui \
     frmdata.ui \
     frmdataeditor.ui \
-    chosevalue.ui
+    chosevalue.ui \
+    about.ui
 
 CONFIG += mobility
 MOBILITY = 
@@ -55,4 +60,7 @@ ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 OTHER_FILES += \
     android/AndroidManifest.xml
+
+RESOURCES += \
+    movies.qrc
 

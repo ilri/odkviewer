@@ -18,49 +18,30 @@
 
 */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-#include <QWidget>
-#include "formsmodel.h"
-#include <QModelIndex>
-#include <QMovie>
 #include "odkthread.h"
 
-
-namespace Ui {
-class mainWindow;
+odkThread::odkThread(QObject *parent) :
+    QThread(parent)
+{
 }
 
-class mainWindow : public QWidget
+void odkThread::run()
 {
-    Q_OBJECT
+    m_reader.processXML(m_surveyFile,m_mainModule);
+}
 
-public:
-    explicit mainWindow(QWidget *parent = 0);
-    ~mainWindow();
+void odkThread::setReader(odkFormReader reader)
+{
+    m_reader = reader;
+}
 
-private slots:
-    void on_cmdclose_clicked();
+odkFormReader odkThread::getReader()
+{
+    return m_reader;
+}
 
-    void on_cmdsettings_clicked();
-
-    void formClicked(QModelIndex index);
-
-    void on_cmdabout_clicked();
-
-    void readerFinished();
-
-    void reStart();
-
-private:
-    Ui::mainWindow *ui;
-    void loadSettings();
-    QString dataDir;
-    QString formsDir;
-    formsModel *m_formModel;
-    QMovie *movie;
-    odkThread odkReader;
-};
-
-#endif // MAINWINDOW_H
+void odkThread::setSurveyData(QString surveyFile, QString mainModule)
+{
+    m_surveyFile = surveyFile;
+    m_mainModule = mainModule;
+}

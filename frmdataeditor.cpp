@@ -1,3 +1,23 @@
+/*
+    ODK Viewer - A tool to visualise and edit survey data collected in ODK
+    Copyright (C) 2014  International Livestock Research Institute
+    Author: Carlos Quiros (Research Methods Group)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include "frmdataeditor.h"
 #include "ui_frmdataeditor.h"
 #include <QScroller>
@@ -5,9 +25,6 @@
 #include "odkformreader.h"
 #include "chosevalue.h"
 #include <QLineEdit>
-#include <QMouseEvent>
-
-
 
 
 
@@ -18,15 +35,21 @@ frmDataEditor::frmDataEditor(QWidget *parent) :
     ui->setupUi(this);
 
     //ODKreader = new odkFormReader(this);
-
     m_editorModel = new editorModel;
 
+
+
+
+    //ui->tableView->setModel(m_editorModel);
     ui->tableView->setModel(m_editorModel);
+
 
     ui->cmdsave->setEnabled(false);
     ui->cmdcancel->setEnabled(false);
 
     connect(m_editorModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),this,SLOT(dataChanged(QModelIndex,QModelIndex)));
+
+
 }
 
 frmDataEditor::~frmDataEditor()
@@ -39,37 +62,34 @@ void frmDataEditor::setODKReader(odkFormReader reader)
 {
     ODKreader = reader;
     ODKreader.createItemsTree(); //We create the items tree here because is a list of pointer and thet get free when the editor closes.
+    ui->treeWidget->insertTopLevelItems(0,ODKreader.getTreeItems());
+    ui->treeWidget->expandAll();
+    ui->treeWidget->resizeColumnToContents(0);
+#ifdef Q_OS_ANDROID
+    editcharm.activateOn(ui->tableView);
+    treeCharm.activateOn(ui->treeWidget);
+#endif
 }
 
 
-void frmDataEditor::setData(QString surveyID, QString surveyDesc, QString surveyTag, QString surveyVersion, QString surveyFile, QString dataDesc, QString dataFile)
+void frmDataEditor::addData(QString dataFile, QString dataDesc)
+{
+
+    m_dataFile = dataFile;
+    m_dataDesc = dataDesc;
+    m_editorModel->addData(dataFile,dataDesc);
+
+}
+
+void frmDataEditor::setSurveyInfo(QString surveyID, QString surveyDesc, QString surveyTag, QString surveyVersion, QString surveyFile)
 {
     m_surveyID = surveyID;
     m_surveyDesc = surveyDesc;
     m_surveyTag = surveyTag;
     m_surveyVersion = surveyVersion;
     m_surveyFile = surveyFile;
-    m_dataDesc = dataDesc;
-    m_dataFile = dataFile;
     ui->lblsurvey->setText("Survey: " + m_surveyDesc);
     ui->lblversion->setText("Version: " + m_surveyVersion);
-    ui->lbldata->setText("Data file: " + m_dataDesc);
-
-    //ODKreader.processXML(m_surveyFile,"mainForm");
-
-
-    //ui->treeWidget->insertTopLevelItems(0,ODKreader.getTreeItems());
-    ui->treeWidget->insertTopLevelItems(0,ODKreader.getTreeItems());
-    ui->treeWidget->expandAll();
-    ui->treeWidget->resizeColumnToContents(0);
-
-#ifdef Q_OS_ANDROID
-    editcharm.activateOn(ui->tableView);
-    treeCharm.activateOn(ui->treeWidget);
-#endif
-
-    //ui->tableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
-
 }
 
 void frmDataEditor::dataChanged(QModelIndex , QModelIndex )
@@ -98,9 +118,10 @@ void frmDataEditor::on_treeWidget_itemClicked(QTreeWidgetItem *item, int /*colum
 {
     TtableDef table;
     table = ODKreader.getTable(item->data(0,Qt::UserRole).toString());
-    m_editorModel->loadData(table,m_dataFile);
+    m_editorModel->loadData(table);
 
     ui->tableView->resizeColumnsToContents();
+
 
 }
 
@@ -121,9 +142,10 @@ void frmDataEditor::on_cmdcancel_clicked()
         TtableDef table;
         //table = ODKreader.getTable(item->data(0,Qt::UserRole).toString());
         table = ODKreader.getTable(item->data(0,Qt::UserRole).toString());
-        m_editorModel->loadData(table,m_dataFile);
+        m_editorModel->loadData(table);
 
         ui->tableView->resizeColumnsToContents();
+        //tableView->resizeColumnsToContents();
 
         ui->treeWidget->setEnabled(true);
         ui->cmdsave->setEnabled(false);
@@ -134,28 +156,7 @@ void frmDataEditor::on_cmdcancel_clicked()
 
 void frmDataEditor::on_tableView_doubleClicked(const QModelIndex &index)
 {
-    QString lkpTable;
-    lkpTable = m_editorModel->getColumnLkp(index.column());
-    if (lkpTable != "NULL")
-    {
-        choseValue valueDialog;
-        valueDialog.setWindowState(Qt::WindowMaximized);        
-        valueDialog.return_value = index.data().toString();
-        //valueDialog.loadValues(ODKreader.getLookUpValues(lkpTable));
-        valueDialog.loadValues(ODKreader.getLookUpValues(lkpTable));
-        valueDialog.exec();
-        m_editorModel->setData(index,valueDialog.return_value);
-    }
-}
 
-
-
-void frmDataEditor::on_cmdedit_clicked()
-{
-    QModelIndex index;
-    index = ui->tableView->currentIndex();
-    if (ui->tableView->currentIndex().isValid())
-    {
         QString lkpTable;
         lkpTable = m_editorModel->getColumnLkp(index.column());
         if (lkpTable != "NULL")
@@ -168,17 +169,52 @@ void frmDataEditor::on_cmdedit_clicked()
             valueDialog.exec();
             m_editorModel->setData(index,valueDialog.return_value);
         }
-        else
-        {
-            ui->tableView->edit(index);
-            /*QLineEdit * edit =  qobject_cast<QLineEdit *>(ui->tableView->indexWidget(index));
-            if (edit)
+
+}
+
+
+
+void frmDataEditor::on_cmdedit_clicked()
+{
+    QModelIndex index;
+    index = ui->tableView->currentIndex();
+    //index = tableView->currentIndex();
+    if (index.isValid())
+    {
+
+            QString lkpTable;
+            lkpTable = m_editorModel->getColumnLkp(index.column());
+            if (lkpTable != "NULL")
             {
-                edit->setSelection(0,0);
-                edit->setCursorPosition(edit->text().length());
-                QMouseEvent* event = new QMouseEvent( QEvent::MouseButtonPress, QPoint( 1, 1 ),Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-                QApplication::postEvent( edit, event );
-            }*/
-        }
+                choseValue valueDialog;
+                valueDialog.setWindowState(Qt::WindowMaximized);
+                valueDialog.return_value = index.data().toString();
+                //valueDialog.loadValues(ODKreader.getLookUpValues(lkpTable));
+                valueDialog.loadValues(ODKreader.getLookUpValues(lkpTable));
+                valueDialog.exec();
+                m_editorModel->setData(index,valueDialog.return_value);
+            }
+            else
+            {
+                ui->tableView->edit(index);
+
+
+                QLineEdit * edit =  qobject_cast<QLineEdit *>(ui->tableView->indexWidget(index));
+                if (edit)
+                {
+                    edit->setSelection(0,0);
+                    edit->setCursorPosition(edit->text().length());
+                    QGuiApplication::inputMethod()->show();
+                }
+            }
+
     }
+}
+
+void frmDataEditor::on_cmdhidesurvey_clicked()
+{
+   if (ui->tableView->verticalHeader()->isVisible())
+       ui->tableView->verticalHeader()->hide();
+   else
+       ui->tableView->verticalHeader()->show();
 }

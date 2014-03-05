@@ -1,3 +1,23 @@
+/*
+    ODK Viewer - A tool to visualise and edit survey data collected in ODK
+    Copyright (C) 2014  International Livestock Research Institute
+    Author: Carlos Quiros (Research Methods Group)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include "editormodel.h"
 #include <QDomDocument>
 #include <QFile>
@@ -10,17 +30,37 @@ editorModel::editorModel(QObject *parent) :
 {
 }
 
-
-
-void editorModel::loadData(TtableDef table, QString dataFile)
+void editorModel::addData(QString dataFile, QString dataDesc)
 {
+    TdataFileDef dfile;
+    dfile.dataFile = dataFile;
+    dfile.dataDesc = dataDesc;
+    dfile.doc = QDomDocument("ODKDocument");
+    dfile.opened = true;
+    dfile.writeFile = false;
+    QFile xmlfile(dataFile);
+    if (!xmlfile.open(QIODevice::ReadOnly))
+        dfile.opened = false;
+    if (!dfile.doc.setContent(&xmlfile))
+    {
+        xmlfile.close();
+        dfile.opened = false;
+    }
+    xmlfile.close();
+    fileList.append(dfile);
+
+}
+
+void editorModel::loadData(TtableDef table)
+{
+    activeTable = table;
     this->beginResetModel();
 
-    activeTable = table;
-    m_dataFile = dataFile;
 
-    doc = QDomDocument("ODKDocument");
-    QFile xmlfile(dataFile);
+    //m_dataFile = dataFile;
+
+    //doc = QDomDocument("ODKDocument");
+    /*QFile xmlfile(dataFile);
     if (!xmlfile.open(QIODevice::ReadOnly))
         return ;
     if (!doc.setContent(&xmlfile))
@@ -28,82 +68,100 @@ void editorModel::loadData(TtableDef table, QString dataFile)
         xmlfile.close();
         return ;
     }
-    xmlfile.close();
+    xmlfile.close();*/
+    int index;
+    index = 0;
 
-    dataList.clear();
+    //qDebug() << "Begin load data";
 
-
-    if (table.name == "mainForm")
+    for (int idoc = 0; idoc <= fileList.count()-1;idoc++)
     {
-        QDomNodeList records;
-        QDomNodeList fields;
-        int clm;
-        records = doc.elementsByTagName(table.xmlCode);
-        for (int pos = 0; pos <= records.count()-1;pos++)
+        if (fileList[idoc].opened)
         {
-            TdataDef record;
-            record.modified = false;
-            record.itemElement = records.item(pos).toElement();
-            for (clm = 0; clm <= activeTable.fields.count()-1; clm++)
+            fileList[idoc].dataList.clear();
+
+            if (table.name == "mainModule")
             {
-                fields = record.itemElement.elementsByTagName(activeTable.fields[clm].name);
-                if (fields.count() > 0)
+                QDomNodeList records;
+                QDomNodeList fields;
+                int clm;
+                records = fileList[idoc].doc.elementsByTagName(table.xmlCode);
+                for (int pos = 0; pos <= records.count()-1;pos++)
                 {
-                    TdataItemDef item;
-                    item.ignore = false;
-                    item.modified = false;
-                    item.itemElement = fields.item(0).toElement();
-                    item.value = fields.item(0).toElement().firstChild().nodeValue();
-                    record.fields.append(item);
-                }
-                else
-                {
-                    TdataItemDef item;
-                    item.ignore = true;
-                    item.value = "NA";
-                    item.modified = false;
-                    record.fields.append(item);
+                    TdataDef record;
+                    record.modified = false;
+                    record.itemElement = records.item(pos).toElement();
+                    record.index = index;
+                    for (clm = 0; clm <= activeTable.fields.count()-1; clm++)
+                    {
+                        fields = record.itemElement.elementsByTagName(activeTable.fields[clm].name);
+                        if (fields.count() > 0)
+                        {
+                            TdataItemDef item;
+                            item.ignore = false;
+                            item.modified = false;
+                            item.itemElement = fields.item(0).toElement();
+                            item.value = fields.item(0).toElement().firstChild().nodeValue();
+                            record.fields.append(item);
+                        }
+                        else
+                        {
+                            TdataItemDef item;
+                            item.ignore = true;
+                            item.value = "NA";
+                            item.modified = false;
+                            record.fields.append(item);
+                        }
+                    }
+                    fileList[idoc].dataList.append(record);
+                    index++;
                 }
             }
-            dataList.append(record);
-        }
-    }
-    else
-    {
-        QDomNodeList records;
-        QDomNodeList fields;
-        int clm;
-        records = doc.elementsByTagName(table.name);
-        for (int pos = 0; pos <= records.count()-1;pos++)
-        {
-            TdataDef record;
-            record.modified = false;
-            record.itemElement = records.item(pos).toElement();
-            for (clm = 0; clm <= activeTable.fields.count()-1; clm++)
+            else
             {
-                fields = record.itemElement.elementsByTagName(activeTable.fields[clm].name);
-                if (fields.count() > 0)
+                QDomNodeList records;
+                QDomNodeList fields;
+                int clm;
+                records = fileList[idoc].doc.elementsByTagName(table.name);
+                for (int pos = 0; pos <= records.count()-1;pos++)
                 {
-                    TdataItemDef item;
-                    item.ignore = false;
-                    item.modified = false;
-                    item.itemElement = fields.item(0).toElement();
-                    item.value = fields.item(0).toElement().firstChild().nodeValue();
-                    record.fields.append(item);
-                }
-                else
-                {
-                    TdataItemDef item;
-                    item.ignore = true;
-                    item.value = "NA";
-                    item.modified = false;
-                    record.fields.append(item);
+                    TdataDef record;
+                    record.modified = false;
+                    record.itemElement = records.item(pos).toElement();
+                    record.index = index;
+                    for (clm = 0; clm <= activeTable.fields.count()-1; clm++)
+                    {
+                        fields = record.itemElement.elementsByTagName(activeTable.fields[clm].name);
+                        if (fields.count() > 0)
+                        {
+                            TdataItemDef item;
+                            item.ignore = false;
+                            item.modified = false;
+                            item.itemElement = fields.item(0).toElement();
+                            item.value = fields.item(0).toElement().firstChild().nodeValue();
+                            record.fields.append(item);
+                        }
+                        else
+                        {
+                            TdataItemDef item;
+                            item.ignore = true;
+                            item.value = "NA";
+                            item.modified = false;
+                            record.fields.append(item);
+                        }
+                    }
+                    fileList[idoc].dataList.append(record);
+                    index++;
                 }
             }
-            dataList.append(record);
+        }
+        else
+        {
+            qDebug() << fileList[idoc].dataFile + " is not opened";
         }
     }
 
+    //qDebug() << "End load data";
 
     this->endResetModel();
 
@@ -112,49 +170,57 @@ void editorModel::loadData(TtableDef table, QString dataFile)
 void editorModel::saveData()
 {
     int clm;
-    bool writeFile;
-    writeFile = false;
-    for (int pos = 0; pos <= dataList.count()-1;pos++)
+    int idoc;
+
+    for (idoc = 0; idoc <= fileList.count()-1;idoc++)
     {
-        if (dataList[pos].modified)
+
+        for (int pos = 0; pos <= fileList[idoc].dataList.count()-1;pos++)
         {
-            for (clm = 0; clm <= dataList[pos].fields.count()-1; clm++)
+            if (fileList[idoc].dataList[pos].modified)
             {
-                if (!dataList[pos].fields[clm].ignore)
+                for (clm = 0; clm <= fileList[idoc].dataList[pos].fields.count()-1; clm++)
                 {
-                    if (!dataList[pos].fields[clm].itemElement.firstChild().isNull())
-                        dataList[pos].fields[clm].itemElement.firstChild().setNodeValue(dataList[pos].fields[clm].value);
-                    else
+                    if (!fileList[idoc].dataList[pos].fields[clm].ignore)
                     {
-                        QDomText data;
-                        data = doc.createTextNode(dataList[pos].fields[clm].value);
-                        dataList[pos].fields[clm].itemElement.appendChild(data);
-                        //dataList[pos].fields[clm].itemElement.firstChild().setNodeValue();
+                        if (!fileList[idoc].dataList[pos].fields[clm].itemElement.firstChild().isNull())
+                            fileList[idoc].dataList[pos].fields[clm].itemElement.firstChild().setNodeValue(fileList[idoc].dataList[pos].fields[clm].value);
+                        else
+                        {
+                            QDomText data;
+                            data = fileList[idoc].doc.createTextNode(fileList[idoc].dataList[pos].fields[clm].value);
+                            fileList[idoc].dataList[pos].fields[clm].itemElement.appendChild(data);
+                            //dataList[pos].fields[clm].itemElement.firstChild().setNodeValue();
+                        }
+                        fileList[idoc].writeFile = true;
                     }
-                    writeFile = true;
                 }
             }
         }
     }
 
-    if (writeFile)
+    for (idoc = 0; idoc <= fileList.count()-1;idoc++)
     {
-        QFile file(m_dataFile);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {            
-            QTextStream out(&file);
-            out.setCodec("UTF-8");
+        if (fileList[idoc].writeFile)
+        {
+            QFile file(fileList[idoc].dataFile);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                QTextStream out(&file);
+                out.setCodec("UTF-8");
 
-            //out << doc.toString();
-            doc.save(out,1,QDomNode::EncodingFromTextStream);
+                //out << doc.toString();
+                fileList[idoc].doc.save(out,1,QDomNode::EncodingFromTextStream);
 
-            file.close();
+                file.close();
+            }
+
+
         }
-
-        loadData(activeTable,m_dataFile);
+        else
+            qDebug() << "Nothing to write for " + fileList[idoc].dataFile;
     }
-    else
-        qDebug() << "Nothing to write";
+    loadData(activeTable);
 }
 
 
@@ -167,11 +233,99 @@ QString editorModel::getColumnLkp(int column)
 
 }
 
+QString editorModel::getDataDesc(int index) const
+{
+    int pos;
+    for (int idoc = 0; idoc <= fileList.count()-1;idoc++)
+    {
+        for (pos = 0; pos <= fileList[idoc].dataList.count()-1;pos++)
+        {
+            if (fileList[idoc].dataList[pos].index == index)
+            {
+                return fileList[idoc].dataDesc;
+            }
+        }
+    }
+    return "Unknonw";
+}
+
+QString editorModel::getDataValue(int index, int column) const
+{
+    int pos;
+    for (int idoc = 0; idoc <= fileList.count()-1;idoc++)
+    {
+        for (pos = 0; pos <= fileList[idoc].dataList.count()-1;pos++)
+        {
+            if (fileList[idoc].dataList[pos].index == index)
+            {
+                return fileList[idoc].dataList[pos].fields[column].value;
+            }
+        }
+    }
+    return "Unknown";
+}
+
+bool editorModel::isDataModified(int index, int column) const
+{
+    int pos;
+    for (int idoc = 0; idoc <= fileList.count()-1;idoc++)
+    {
+        for (pos = 0; pos <= fileList[idoc].dataList.count()-1;pos++)
+        {
+            if (fileList[idoc].dataList[pos].index == index)
+            {
+                return fileList[idoc].dataList[pos].fields[column].modified;
+            }
+        }
+    }
+    return false;
+}
+
+bool editorModel::isDataIgnored(int index, int column) const
+{
+    int pos;
+    for (int idoc = 0; idoc <= fileList.count()-1;idoc++)
+    {
+        for (pos = 0; pos <= fileList[idoc].dataList.count()-1;pos++)
+        {
+            if (fileList[idoc].dataList[pos].index == index)
+            {
+                return fileList[idoc].dataList[pos].fields[column].ignore;
+            }
+        }
+    }
+    return false;
+}
+
+void editorModel::setData2(int index, int column, QString value)
+{
+    int pos;
+    for (int idoc = 0; idoc <= fileList.count()-1;idoc++)
+    {
+        for (pos = 0; pos <= fileList[idoc].dataList.count()-1;pos++)
+        {
+            if (fileList[idoc].dataList[pos].index == index)
+            {
+                fileList[idoc].dataList[pos].fields[column].value = value;
+                fileList[idoc].dataList[pos].fields[column].modified = true;
+                fileList[idoc].dataList[pos].modified = true;
+                return;
+            }
+        }
+    }
+}
+
 //----------------Model controlling functions-----------------------------
 
 int editorModel::rowCount(const QModelIndex &) const
 {
-    return dataList.count();
+    int rows;
+    rows = 0;
+    for (int idoc = 0; idoc <= fileList.count()-1;idoc++)
+    {
+        rows = rows + fileList[idoc].dataList.count();
+    }
+    return rows;
 }
 
 int editorModel::columnCount(const QModelIndex &) const
@@ -183,11 +337,13 @@ QVariant editorModel::data(const QModelIndex &index, int role) const
 {
     if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
     {
-        return dataList[index.row()].fields[index.column()].value;
+        return getDataValue(index.row(),index.column()); //dataList[index.row()].fields[index.column()].value;
     }
     if (role == Qt::BackgroundRole)
     {
-        if (!dataList[index.row()].fields[index.column()].modified)
+
+        //if (!dataList[index.row()].fields[index.column()].modified)
+        if (!isDataModified(index.row(),index.column()))
         {
             QBrush Background(QColor(255,255,255));
             Background.setStyle(Qt::SolidPattern);
@@ -199,14 +355,18 @@ QVariant editorModel::data(const QModelIndex &index, int role) const
             Background.setStyle(Qt::SolidPattern);
             return Background;
         }
+
     }
     if (role == Qt::ForegroundRole)
     {
-        if (dataList[index.row()].fields[index.column()].ignore)
+
+        //if (dataList[index.row()].fields[index.column()].ignore)
+        if (isDataIgnored(index.row(),index.column()))
         {
             QBrush FontColor(QColor(191,184,181));
             return FontColor;
         }
+
     }
     return QVariant();
 }
@@ -215,13 +375,16 @@ bool editorModel::setData(const QModelIndex &index,const QVariant &value,int rol
 {
     if (role == Qt::EditRole)
     {
-        if (!dataList[index.row()].fields[index.column()].ignore)
+        //if (!dataList[index.row()].fields[index.column()].ignore)
+        if (!isDataIgnored(index.row(),index.column()))
         {
-            if (dataList[index.row()].fields[index.column()].value != value.toString())
+            //if (dataList[index.row()].fields[index.column()].value != value.toString())
+            if (getDataValue(index.row(),index.column()) != value.toString())
             {
-                dataList[index.row()].fields[index.column()].value = value.toString();
-                dataList[index.row()].fields[index.column()].modified = true;
-                dataList[index.row()].modified = true;
+                //dataList[index.row()].fields[index.column()].value = value.toString();
+                //dataList[index.row()].fields[index.column()].modified = true;
+                //dataList[index.row()].modified = true;
+                setData2(index.row(),index.column(),value.toString());
                 emit dataChanged(index,index);
             }
         }
@@ -232,7 +395,7 @@ bool editorModel::setData(const QModelIndex &index,const QVariant &value,int rol
 
 Qt::ItemFlags editorModel::flags(const QModelIndex &index) const
 {
-    if (dataList[index.row()].fields[index.column()].ignore)
+    if (isDataIgnored(index.row(),index.column()))
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     else
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
@@ -240,8 +403,6 @@ Qt::ItemFlags editorModel::flags(const QModelIndex &index) const
 
 QVariant editorModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    int sect;
-    sect = section;
     if (orientation == Qt::Horizontal)
     {
         if (role == Qt::DisplayRole)
@@ -251,11 +412,20 @@ QVariant editorModel::headerData(int section, Qt::Orientation orientation, int r
         }
         if (role == Qt::ForegroundRole)
         {
-            if (const_cast<editorModel *>(this)->getColumnLkp(sect) != "NULL") //We cast this fuction because we are in a const function an we need to call a no const function
+
+            if (const_cast<editorModel *>(this)->getColumnLkp(section) != "NULL") //We cast this fuction because we are in a const function an we need to call a no const function
             {
                 QBrush fontColor(QColor(0,0,255));
                 return fontColor;
             }
+
+        }
+    }
+    if (orientation == Qt::Vertical)
+    {
+        if (role == Qt::DisplayRole)
+        {
+            return getDataDesc(section);
         }
     }
     return QVariant();
