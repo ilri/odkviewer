@@ -84,6 +84,7 @@ share/qtcreator/translations/qtcreator_untranslated.ts
 build
 debug
 release
+screenShots
 old_forms
 lib/*
 lib64/*
@@ -92,6 +93,9 @@ doc/api/html/*
 doc/pluginhowto/html/*
 .rcc
 .pch
+*.jpg
+*.odt
+*.docx
 
 # Binaries
 # --------
