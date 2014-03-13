@@ -9,10 +9,10 @@ Monitoring research quality in the field is an important element of carrying out
 
 ODK Viewer is a tool that complements ODK by displaying on-device data in tabular form and easier reviewing and editing of data before transfer to the server.
 
-Requirements:
+Build requirements:
 Qt Android 5.2.x (http://qt-project.org/)
 
-Binary APP
+Binary APP:
 http://data.ilri.org/apks/odkviewer.apk
 
 License
