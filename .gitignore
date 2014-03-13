@@ -94,7 +94,6 @@ doc/pluginhowto/html/*
 .rcc
 .pch
 *.jpg
-*.odt
 *.docx
 
 # Binaries
