@@ -1,4 +1,4 @@
-odkviewer
+ODK Viewer
 =========
 
 A tool to visualise ODK data on Android devices
