@@ -15,6 +15,9 @@ Qt Android 5.2.x (http://qt-project.org/)
 Binary APP:
 http://data.ilri.org/apks/odkviewer.apk
 
+Author:
+Carlos Quiros. Research Methods Group. International Livestock Research Institute.
+
 License
 The ODK Viewer software is licensed under GPL Version 3 (https://www.gnu.org/copyleft/gpl.html).
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
