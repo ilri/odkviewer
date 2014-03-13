@@ -15,8 +15,7 @@ Qt Android 5.2.x (http://qt-project.org/)
 Binary APP:
 http://data.ilri.org/apks/odkviewer.apk
 
-*Author*
-
+-Author-
 Carlos Quiros. Research Methods Group. International Livestock Research Institute.
 
 License
