@@ -17,6 +17,10 @@ Qt Android 5.2.x (http://qt-project.org/)
 
 http://data.ilri.org/apks/odkviewer.apk
 
+**Manual**
+
+https://cgspace.cgiar.org/handle/10568/35248
+
 **Author**
 
 Carlos Quiros. Research Methods Group. International Livestock Research Institute.
