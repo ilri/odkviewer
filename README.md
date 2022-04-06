@@ -3,7 +3,7 @@
 A cross-platform tool to visualise ODK form data. Tested on GNU/Linux, Windows, and Android.
 
 <p align="center">
-  <img width="600" alt="Screenshot of ODK Viewer" src="https://raw.githubusercontent.com/ilri/odkviewer/master/screenshot.png">
+  <img width="600" alt="Screenshot of ODK Viewer" src="screenshot.png">
 </p>
 
 [Open Data Kit (ODK)](https://opendatakit.org/) is a tool for collecting data on Android mobile devices. It presents a survey as a series of pages with questions. One of the features of ODK is that the user can send data directly from the field to a server on the Internet. However, once the data have been sent it is not possible to edit and resend.
