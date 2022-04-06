@@ -10,7 +10,7 @@ A cross-platform tool to visualise ODK form data. Tested on GNU/Linux, Windows, 
 
 Monitoring research quality in the field is an important element of carrying out good research, along with data cleaning processes and other data management activities. This initial monitoring and reviewing of the data is an ideal time for capturing and correcting initial errors while the data collection activity is fresh in the mind of the enumerators. With standard ODK (Version 1) reviewing and correcting the data on the device before sending is difficult as it requires scrolling through the survey pages and questions individually which can take a lot of time for larger surveys with many tabular questions.
 
-ODK Viewer is a tool that complements ODK by displaying on-device data in tabular form and easier reviewing and editing of data before submission to the server.
+ODK Viewer is a tool that complements ODK by displaying on-device data in tabular form and allows easier reviewing and editing of data before submission to the server.
 
 ## Build Requirements
 
