@@ -14,7 +14,7 @@ ODK Viewer is a tool that complements ODK by displaying on-device data in tabula
 
 ## Build Requirements
 
-- [Qt Android 5.2.x](https://doc.qt.io/qt-5/android.html)
+- [Qt 5.x](https://doc.qt.io/qt-5/android.html)
 
 ## Build Instructions
 
