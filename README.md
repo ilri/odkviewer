@@ -12,6 +12,10 @@ Monitoring research quality in the field is an important element of carrying out
 
 ODK Viewer is a tool that complements ODK by displaying on-device data in tabular form and allows easier reviewing and editing of data before submission to the server.
 
+If you use ODK Viewer please cite:
+
+*Quiros, C. 2014. ODK Viewer: A tool to visualise ODK (version 1) data on Android devices. Nairobi, Kenya: ILRI. https://hdl.handle.net/10568/119269.*
+
 ## Build Requirements
 
 - [Qt 5.x](https://doc.qt.io/qt-5/android.html)
@@ -26,10 +30,6 @@ $ make
 ```
 
 The resulting application will be called `odkviewer` in the same directory.
-
-## Pre-compiled Android Application
-
-http://data.ilri.org/apks/odkviewer.apk
 
 ## Manual
 
