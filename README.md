@@ -19,7 +19,7 @@ http://data.ilri.org/apks/odkviewer.apk
 
 **Manual**
 
-https://cgspace.cgiar.org/handle/10568/35248
+https://hdl.handle.net/10568/35248
 
 **Author**
 
